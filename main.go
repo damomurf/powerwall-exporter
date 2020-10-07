@@ -223,7 +223,7 @@ func populateSource(source string, rec Record, reg *prometheus.Registry) error {
 		}
 	}
 
-	energyImported.WithLabelValues(source).Set(rec.EnergyExported)
+	energyImported.WithLabelValues(source).Set(rec.EnergyImported)
 
 	instantAverageVoltage := prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -317,7 +317,9 @@ func generateMetricHandler() func(w http.ResponseWriter, r *http.Request) {
 		reg.Register(battery)
 		battery.Set(soe.Percentage)
 
-		h := promhttp.HandlerFor(reg, promhttp.HandlerOpts{})
+		h := promhttp.HandlerFor(reg, promhttp.HandlerOpts{
+			EnableOpenMetrics: true,
+		})
 		h.ServeHTTP(w, r)
 
 	}
